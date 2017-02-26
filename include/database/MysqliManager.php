@@ -140,6 +140,7 @@ class MysqliManager extends MysqlManager
 
 		$this->query_time = microtime(true) - $this->query_time;
 		$GLOBALS['log']->info('Query Execution Time:'.$this->query_time);
+		$this->dump_slow_queries($sql);
 
 		// This is some heavy duty debugging, leave commented out unless you need this:
 		/*
@@ -310,13 +311,14 @@ class MysqliManager extends MysqlManager
 	    }
 
 		// cn: using direct calls to prevent this from spamming the Logs
+      $charset = $this->getOption('charset') ?: 'utf8';
 	    
 	    $collation = $this->getOption('collation');
 	    if(!empty($collation)) {
-	    	$names = "SET NAMES 'utf8' COLLATE '$collation'";
+	    	$names = "SET NAMES '$charset' COLLATE '$collation'";
 	    	mysqli_query($this->database,$names);
 		}
-	    mysqli_set_charset ($this->database , "utf8" );
+	    mysqli_set_charset ($this->database , "$charset" );
 
 		if($this->checkError('Could Not Connect', $dieOnError))
 			$GLOBALS['log']->info("connected to db");
